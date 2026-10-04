@@ -7,6 +7,10 @@ class DomainError(Exception):
     status = 400
     code = "domain_error"
 
+    def __init__(self, message: str = "", extra: Dict[str, Any] = None) -> None:
+        super().__init__(message)
+        self.extra = extra or {}
+
 
 class ValidationError(DomainError):
     status = 422
@@ -21,6 +25,11 @@ class NotFound(DomainError):
 class Conflict(DomainError):
     status = 409
     code = "conflict"
+
+
+class RecomputeFailed(DomainError):
+    status = 409
+    code = "recompute_failed"
 
 
 class PermissionDenied(DomainError):
@@ -72,6 +81,12 @@ def integer(data: Dict[str, Any], key: str, minimum: int = None, maximum: int = 
     if maximum is not None and value > maximum:
         raise ValidationError("%s不能大于%s" % (key, maximum))
     return value
+
+
+def optional_int(data: Dict[str, Any], key: str, minimum: int = None, maximum: int = None, default=None):
+    if data.get(key) is None:
+        return default
+    return integer(data, key, minimum, maximum)
 
 
 def choice(data: Dict[str, Any], key: str, allowed: List[str]) -> str:
