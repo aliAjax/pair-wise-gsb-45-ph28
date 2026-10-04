@@ -23,6 +23,23 @@ class Conflict(DomainError):
     code = "conflict"
 
 
+class DraftConflict(Conflict):
+    """版本冲突，但后到者的修改已保留为冲突草稿。"""
+
+    code = "draft_conflict"
+
+    def __init__(self, message: str, draft_id: int) -> None:
+        super().__init__(message)
+        self.draft_id = draft_id
+
+
+class RecomputeError(DomainError):
+    """批次重算不可行；原批次保留，等待值班员修正后重试。"""
+
+    status = 422
+    code = "recompute_failed"
+
+
 class PermissionDenied(DomainError):
     status = 403
     code = "permission_denied"
